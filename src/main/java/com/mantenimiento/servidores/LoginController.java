@@ -13,6 +13,7 @@ import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.Modality;
 
 public class LoginController {
 
@@ -27,10 +28,8 @@ public class LoginController {
 
     @FXML
     private void ingresar() {
-
         String usuario = UsuarioField.getText();
         String password = PasswordField.getText();
-
         boolean autenticado =
                 activeDirectoryService.autenticar(usuario, password);
         if(autenticado) {
@@ -59,13 +58,12 @@ public class LoginController {
 private void abrirPanelError() {
     try {
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/mantenimiento/servidores/PanelError.fxml")
+            LoginController.class.getResource("/com/mantenimiento/servidores/PanelError.fxml")
         );
-        Scene scene = new Scene(loader.load());
-        Stage stage = (Stage) UsuarioField.getScene().getWindow();
-        stage.setScene(scene);
-        stage.setTitle("Error de autenticación");
-        stage.centerOnScreen();
+
+        Stage stage = new Stage();
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
 
     } catch (IOException e) {
         e.printStackTrace();

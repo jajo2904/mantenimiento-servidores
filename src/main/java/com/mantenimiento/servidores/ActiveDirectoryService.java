@@ -6,7 +6,6 @@ public class ActiveDirectoryService {
         if (usuario == null || usuario.isBlank()) {
             return false;
         }
-
         if (password == null || password.isBlank()) {
             return false;
         }

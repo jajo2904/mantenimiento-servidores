@@ -1,8 +1,18 @@
 package com.mantenimiento.servidores;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import java.io.IOException;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 public class LoginController {
 
@@ -23,8 +33,43 @@ public class LoginController {
 
         boolean autenticado =
                 activeDirectoryService.autenticar(usuario, password);
-
-        System.out.println("Usuario: " + autenticado);
-        System.out.println("Autenticado: " + autenticado);
+        if(autenticado) {
+            abrirPanelPrincipal();
+        } else {
+            abrirPanelError();
+        }
     }
+    
+    @FXML
+   private void abrirPanelPrincipal() {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/mantenimiento/servidores/PanelPrincipal.fxml")
+        );
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) UsuarioField.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setTitle("Mantenimiento de Servidores");
+        stage.centerOnScreen();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+private void abrirPanelError() {
+    try {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/mantenimiento/servidores/PanelError.fxml")
+        );
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) UsuarioField.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setTitle("Error de autenticación");
+        stage.centerOnScreen();
+
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
 }

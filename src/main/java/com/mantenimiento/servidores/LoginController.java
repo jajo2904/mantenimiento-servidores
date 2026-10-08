@@ -33,19 +33,23 @@ public class LoginController {
         boolean autenticado =
                 activeDirectoryService.autenticar(usuario, password);
         if(autenticado) {
-            abrirPanelPrincipal();
+            abrirPanelPrincipal(usuario);
         } else {
             abrirPanelError();
         }
     }
     
     @FXML
-   private void abrirPanelPrincipal() {
+   private void abrirPanelPrincipal(String usuario) {
     try {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/mantenimiento/servidores/PanelPrincipal.fxml")
         );
         Scene scene = new Scene(loader.load());
+        
+        PanelPrincipalController controller = loader.getController();
+        controller.setUsuario(usuario);
+
         Stage stage = (Stage) UsuarioField.getScene().getWindow();
         stage.setScene(scene);
         stage.setTitle("Mantenimiento de Servidores");
@@ -62,6 +66,7 @@ private void abrirPanelError() {
         );
 
         Stage stage = new Stage();
+        stage.setTitle("Error");
         stage.setScene(new Scene(loader.load()));
         stage.show();
 

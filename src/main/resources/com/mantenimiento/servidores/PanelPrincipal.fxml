@@ -6,15 +6,18 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="446.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mantenimiento.servidores.PanelPrincipalController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="257.0" prefWidth="447.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mantenimiento.servidores.PanelPrincipalController">
    <children>
-      <Label layoutX="14.0" layoutY="14.0" prefHeight="27.0" prefWidth="289.0" text="Seleccione la Operacion a realizar" textAlignment="JUSTIFY" textOverrun="CLIP">
+      <Label layoutX="14.0" layoutY="14.0" prefHeight="27.0" prefWidth="289.0" text="Operacion" textAlignment="JUSTIFY" textOverrun="CLIP">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Button layoutX="313.0" layoutY="138.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Ejecutar" />
-      <Label layoutX="14.0" layoutY="75.0" prefHeight="17.0" prefWidth="289.0" text="Recrear Portales" />
+      <Button layoutX="313.0" layoutY="138.0" mnemonicParsing="false" onAction="#ejecutar" prefHeight="25.0" prefWidth="120.0" text="Ejecutar" />
+      <Label layoutX="15.0" layoutY="57.0" prefHeight="17.0" prefWidth="289.0" text="Recrear Portales">
+         <font>
+            <Font name="Arial Bold Italic" size="13.0" />
+         </font></Label>
       <Label layoutX="48.0" layoutY="96.0" prefHeight="17.0" prefWidth="104.0" text="SVR-APL-001" />
       <Label fx:id="UsuarioLabel" layoutX="313.0" layoutY="18.0" prefHeight="17.0" prefWidth="120.0">
          <font>
@@ -29,6 +32,11 @@
       <Label layoutX="199.0" layoutY="142.0" prefHeight="8.0" prefWidth="104.0" text="SVR-APL-012" />
       <Label layoutX="199.0" layoutY="167.0" prefHeight="8.0" prefWidth="104.0" text="SVR-APL-015" />
       <Label layoutX="199.0" layoutY="192.0" prefHeight="8.0" prefWidth="104.0" text="SVR-APL-024" />
+      <Label fx:id="EstadoLabel" layoutX="313.0" layoutY="45.0" prefHeight="17.0" prefWidth="120.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
       <CheckBox fx:id="portal001Check" layoutX="14.0" layoutY="96.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="0.0" />
       <CheckBox fx:id="portal002Check" layoutX="14.0" layoutY="119.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="0.0" />
       <CheckBox fx:id="portal003Check" layoutX="14.0" layoutY="142.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="0.0" />

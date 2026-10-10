@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.concurrent.Task;
+import javafx.scene.control.Button;
 
 public class PanelPrincipalController {
 
@@ -26,6 +27,8 @@ public class PanelPrincipalController {
 @FXML private CheckBox portal024Check;
 @FXML private CheckBox seleccionarTodoCheck;
 @FXML
+private Button EjecutarButton;
+@FXML
 private void seleccionarTodos() {
     boolean seleccionar = seleccionarTodoCheck.isSelected();
     portal001Check.setSelected(seleccionar);
@@ -44,7 +47,7 @@ private final ConfiguracionPortalesService configuracionService =
 
 @FXML
 private void ejecutar() {
-
+    EjecutarButton.setDisable(true);
     boolean p001 = portal001Check.isSelected();
     boolean p002 = portal002Check.isSelected();
     boolean p003 = portal003Check.isSelected();
@@ -55,7 +58,7 @@ private void ejecutar() {
     boolean p015 = portal015Check.isSelected();
     boolean p024 = portal024Check.isSelected();
 
-    EstadoLabel.setText("Ejecutando mantenimiento...");
+    EstadoLabel.setText("Ejecutando...");
 
     Task<Void> tarea = new Task<>() {
 
@@ -114,43 +117,23 @@ private void ejecutar() {
         }
     };
 
-    tarea.setOnSucceeded(event ->
-            EstadoLabel.setText("Mantenimiento finalizado"));
+        tarea.setOnSucceeded(event -> {
+            EjecutarButton.setDisable(false);
+        });
 
     tarea.setOnFailed(event -> {
-        EstadoLabel.setText("Error durante el mantenimiento");
-        tarea.getException().printStackTrace();
-    });
+            EjecutarButton.setDisable(false);
+            tarea.getException().printStackTrace();
+        });
 
     Thread hilo = new Thread(tarea);
     hilo.setDaemon(true);
     hilo.start();
 }
 
-
-private void mostrarPortal(
-         ConfiguracionPortalesService.PortalConfig portal) {
-
-     if (portal == null) {
-         return;
-     }
-
-     System.out.println("Portal: " + portal.getNombre());
-     System.out.println("IP: " + portal.getIp());
-
-     for (String instancia : portal.getInstancias()) {
-         System.out.println("Instancia: " + instancia);
-     }
-
-     System.out.println("-------------------------");
- }
-
 private String usuarioActual;
 
 private final RecrearPortalesService recrearPortalesService =
          new RecrearPortalesService();
-
-
 @FXML private Label EstadoLabel;
-
 }

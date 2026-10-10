@@ -13,7 +13,7 @@
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Button layoutX="313.0" layoutY="138.0" mnemonicParsing="false" onAction="#ejecutar" prefHeight="25.0" prefWidth="120.0" text="Ejecutar" />
+      <Button fx:id="EjecutarButton" layoutX="313.0" layoutY="138.0" mnemonicParsing="false" onAction="#ejecutar" prefHeight="25.0" prefWidth="120.0" text="Ejecutar" />
       <Label layoutX="15.0" layoutY="57.0" prefHeight="17.0" prefWidth="289.0" text="Recrear Portales">
          <font>
             <Font name="Arial Bold Italic" size="13.0" />

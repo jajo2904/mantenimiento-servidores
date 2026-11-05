@@ -16,6 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
+        <packaging.build.directory>${project.basedir}/target</packaging.build.directory>
     </properties>
 
     <dependencies>
@@ -42,6 +43,7 @@
     </dependencies>
 
     <build>
+        <directory>${packaging.build.directory}</directory>
 
         <plugins>
 

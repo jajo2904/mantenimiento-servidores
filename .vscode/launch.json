@@ -1,11 +1,18 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Mantenimiento de Servidores",
-            "request": "launch",
-            "mainClass": "com.mantenimiento.servidores.Launcher",
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Mantenimiento de Servidores",
+      "preLaunchTask": "Compilar con Java 21",
+      "javaExec": "C:\\Users\\Jair\\Documents\\Desarrollos\\mantenimiento-servidores\\.packaging-tools\\jdk-21.0.13+9\\bin\\java.exe",
+      "mainClass": "com.mantenimiento.servidores.Launcher",
+      "type": "java",
+      "request": "launch",
+      "classPaths": [
+        "${workspaceFolder}/target/classes",
+        "${workspaceFolder}/src/main/resources",
+        "$Auto"
+      ]
+    }
+  ]
 }

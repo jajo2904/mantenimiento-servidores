@@ -43,11 +43,14 @@ public class LoginController {
    private void abrirPanelPrincipal() {
     try {
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/mantenimiento/servidores/PanelPrincipal.fxml")
+                getClass().getResource("/com/mantenimiento/servidores/Menu.fxml")
         );
         Scene scene = new Scene(loader.load());
+        MenuController menu = loader.getController();
+        menu.setUsuario(UsuarioField.getText());
         Stage stage = (Stage) UsuarioField.getScene().getWindow();
         stage.setScene(scene);
+        stage.sizeToScene();
         stage.setTitle("Mantenimiento de Servidores");
         stage.centerOnScreen();
     } catch (IOException e) {

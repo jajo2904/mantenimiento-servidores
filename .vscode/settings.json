@@ -1,4 +1,11 @@
 {
-    "java.debug.settings.onBuildFailureProceed": true,
-    "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "default": true,
+      "path": "C:\\Users\\Jair\\Documents\\Desarrollos\\mantenimiento-servidores\\.packaging-tools\\jdk-21.0.13+9"
+    }
+  ],
+  "java.debug.settings.onBuildFailureProceed": false
 }

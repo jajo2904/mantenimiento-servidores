@@ -8,6 +8,18 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 
 public class PanelPrincipalController {
+    @FXML private Button VolverButton;
+
+    @FXML private void volverMenu() throws IOException {
+        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("Menu.fxml"));
+        javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
+        MenuController menu = loader.getController();
+        menu.setUsuario(usuarioActual);
+        javafx.stage.Stage stage = (javafx.stage.Stage) VolverButton.getScene().getWindow();
+        stage.setScene(scene);
+        stage.sizeToScene();
+        stage.centerOnScreen();
+    }
 
     @FXML
     private Label UsuarioLabel;
@@ -47,89 +59,44 @@ private final ConfiguracionPortalesService configuracionService =
 
 @FXML
 private void ejecutar() {
-    EjecutarButton.setDisable(true);
-    boolean p001 = portal001Check.isSelected();
-    boolean p002 = portal002Check.isSelected();
-    boolean p003 = portal003Check.isSelected();
-    boolean p004 = portal004Check.isSelected();
-    boolean p005 = portal005Check.isSelected();
-    boolean p006 = portal006Check.isSelected();
-    boolean p012 = portal012Check.isSelected();
-    boolean p015 = portal015Check.isSelected();
-    boolean p024 = portal024Check.isSelected();
-
-    EstadoLabel.setText("Ejecutando...");
-
+    var checks = java.util.List.of(portal001Check, portal002Check, portal003Check, portal004Check, portal005Check, portal006Check, portal012Check, portal015Check, portal024Check);
+    String[] ids = {"001","002","003","004","005","006","012","015","024"};
+    var seleccion = new java.util.ArrayList<String>();
+    for (int i=0;i<ids.length;i++) if(checks.get(i).isSelected()) seleccion.add(ids[i]);
+    if(seleccion.isEmpty()) { EstadoLabel.setText("Seleccione al menos un portal."); return; }
+    EjecutarButton.setDisable(true); VolverButton.setDisable(true); HistorialArea.clear();
     Task<Void> tarea = new Task<>() {
-
-        @Override
-        protected Void call() throws Exception {
-
-            Map<String, ConfiguracionPortalesService.PortalConfig> portales =
-                    configuracionService.cargarPortales();
-
-            if (p001) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SVR-APL-001"), usuarioActual);
-            }
-
-            if (p002) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SRV-APL-002"), usuarioActual);
-            }
-
-            if (p003) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SVR-APL-003"), usuarioActual);
-            }
-
-            if (p004) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SVR-APL-004"), usuarioActual);
-            }
-
-            if (p005) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SVR-APL-005"), usuarioActual);
-            }
-
-            if (p006) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SVR-APL-006"), usuarioActual);
-            }
-
-            if (p012) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SRV-APL-012"), usuarioActual);
-            }
-
-            if (p015) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SRV-APL-015"), usuarioActual);
-            }
-
-            if (p024) {
-                recrearPortalesService.ejecutar(
-                        portales.get("SRV-APL-024"), usuarioActual);
-            }
-
-            return null;
+      private void mostrar(String texto) {
+        javafx.application.Platform.runLater(() -> { EstadoLabel.setText(texto); HistorialArea.appendText(texto + "\n"); });
+      }
+      @Override protected Void call() throws Exception {
+        var portales = configuracionService.cargarPortales();
+        int fallos=0;
+        for(String id: seleccion) {
+          String nombre="Portal"+id;
+          var portal=portales.get("SVR-APL-"+id);
+          if(portal==null) portal=portales.get("SRV-APL-"+id);
+          try {
+            recrearPortalesService.ejecutar(portal, usuarioActual, nombre, this::mostrar);
+            mostrar(nombre+" recreado.");
+          } catch(Exception e) {
+            fallos++;
+            mostrar(nombre+" no se pudo recrear porque " + (e.getMessage()==null?e.getClass().getSimpleName():e.getMessage()));
+          }
         }
+        mostrar("Finalizado: "+(seleccion.size()-fallos)+" correctos; "+fallos+" con error.");
+        return null;
+      }
     };
-
-        tarea.setOnSucceeded(event -> {
-            EjecutarButton.setDisable(false);
-        });
-
+    tarea.setOnSucceeded(event -> { VolverButton.setDisable(false); EjecutarButton.setDisable(false); });
     tarea.setOnFailed(event -> {
-            EjecutarButton.setDisable(false);
-            tarea.getException().printStackTrace();
-        });
-
-    Thread hilo = new Thread(tarea);
-    hilo.setDaemon(true);
-    hilo.start();
+      VolverButton.setDisable(false); EjecutarButton.setDisable(false);
+      String error="No se pudo iniciar: "+tarea.getException().getMessage();
+      EstadoLabel.setText(error); HistorialArea.appendText(error+"\n");
+    });
+    Thread hilo=new Thread(tarea); hilo.setDaemon(true); hilo.start();
 }
+@FXML private javafx.scene.control.TextArea HistorialArea;
 
 private String usuarioActual;
 

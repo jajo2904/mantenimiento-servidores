@@ -1,0 +1,6 @@
+ .root { -fx-background-color: #f3f6fa; -fx-font-family: "Segoe UI"; -fx-font-size: 13; }
+.label { -fx-text-fill: #536579; }
+.title { -fx-text-fill: #16324f; -fx-font-size: 23; -fx-font-weight: bold; }
+.button { -fx-background-color: #1d5fa5; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 18; -fx-cursor: hand; }
+.button:hover { -fx-background-color: #174c84; }
+.secondary { -fx-background-color: #dce6f1; -fx-text-fill: #16324f; }

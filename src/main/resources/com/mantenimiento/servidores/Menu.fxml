@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mantenimiento.servidores.MenuController" prefWidth="620" prefHeight="420" spacing="16" stylesheets="@panel.css">
+ <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
+ <HBox alignment="CENTER_LEFT"><Label text="Panel Inicio" styleClass="title"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="usuarioLabel"/></HBox>
+ <Region prefHeight="8"/>
+ <Button text="Recrear portales" onAction="#abrirPortales" prefWidth="353" prefHeight="41" minHeight="41" maxHeight="41"/>
+ <VBox spacing="5"><Button text="Función 2" onAction="#abrirPendiente2" prefWidth="353" prefHeight="41" minHeight="41" maxHeight="41"/><Label text="Pendiente"/></VBox>
+ <VBox spacing="5"><Button text="Función 3" onAction="#abrirPendiente3" prefWidth="353" prefHeight="41" minHeight="41" maxHeight="41"/><Label text="Pendiente"/></VBox>
+ <Region VBox.vgrow="ALWAYS"/><Button text="Cerrar sesión" onAction="#cerrarSesion" styleClass="button, secondary"/>
+</VBox>

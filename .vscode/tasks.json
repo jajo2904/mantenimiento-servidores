@@ -1,0 +1,21 @@
+{
+  "tasks": [
+    {
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "JAVA_HOME": "C:\\Users\\Jair\\Documents\\Desarrollos\\mantenimiento-servidores\\.packaging-tools\\jdk-21.0.13+9"
+        }
+      },
+      "command": "mvn.cmd",
+      "args": [
+        "--batch-mode",
+        "compile"
+      ],
+      "type": "shell",
+      "problemMatcher": [],
+      "label": "Compilar con Java 21"
+    }
+  ],
+  "version": "2.0.0"
+}

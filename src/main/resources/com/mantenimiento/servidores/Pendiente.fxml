@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?><?import javafx.scene.control.*?><?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mantenimiento.servidores.PendienteController" prefWidth="620" prefHeight="420" spacing="24" stylesheets="@panel.css">
+ <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
+ <HBox alignment="CENTER_LEFT"><Label fx:id="tituloLabel" styleClass="title"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="usuarioLabel"/></HBox>
+ <Label text="Pendiente"/><Region VBox.vgrow="ALWAYS"/><Button text="Volver a Panel Inicio" onAction="#volver" styleClass="button, secondary"/>
+</VBox>

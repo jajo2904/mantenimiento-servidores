@@ -15,6 +15,11 @@ public class RecrearPortalesService {
             ConfiguracionPortalesService.PortalConfig portal,
             String usuario) throws IOException {
 
+        ejecutar(portal, usuario, "Portal", mensaje -> {});
+    }
+    public void ejecutar(ConfiguracionPortalesService.PortalConfig portal, String usuario,
+                         String nombre, java.util.function.Consumer<String> progreso) throws IOException {
+        if (portal == null) throw new IOException("No se encontro la configuracion del equipo seleccionado.");
         Path log = crearRutaLog(usuario);
 
         escribirLog(log, "");
@@ -25,7 +30,16 @@ public class RecrearPortalesService {
         escribirLog(log, "Operacion realizada: Recrear Portales");
         escribirLog(log, "");
         escribirLog(log, "IP: " + portal.getIp());
+        if (portal.getInstancias().isEmpty()) throw new IOException("no hay instancias configuradas.");
+        progreso.accept("Validando ejecucion de servicios");
+        try {
+            new ProcesosRemotosService().detener(portal.getIp(), mensaje -> escribirLog(log, mensaje));
+        } catch (IOException e) {
+            escribirLog(log, "Mantenimiento cancelado antes de borrar carpetas: " + e.getMessage());
+            throw e;
+        }
 
+        progreso.accept("Recreando " + nombre);
         for (String instancia : portal.getInstancias()) {
 
             String rutaRemota = convertirRutaRemota(
@@ -104,6 +118,7 @@ private void eliminarCarpeta(Path carpeta, Path log) throws IOException {
                 log,
                 carpeta + " -> error de acceso al servidor o ruta de red."
         );
+        throw new IOException("error de acceso al servidor o ruta: " + carpeta, e);
     }
 }
 

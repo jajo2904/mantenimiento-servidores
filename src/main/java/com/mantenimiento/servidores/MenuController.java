@@ -20,8 +20,9 @@ public class MenuController {
     @FXML private void abrirPortales() { navegar("PanelPrincipal.fxml"); }
     @FXML private void cerrarSesion() { navegar("login.fxml"); }
 
-    @FXML private void abrirPendiente2() { navegar("Pendiente.fxml", "Función 2"); }
-    @FXML private void abrirPendiente3() { navegar("Pendiente.fxml", "Función 3"); }
+    @FXML private void abrirSima() { new SimaWindow().mostrar(); }
+    @FXML private void abrirPendiente2() { navegar("Pendiente.fxml", "FunciÃ³n 2"); }
+    @FXML private void abrirPendiente3() { navegar("Pendiente.fxml", "FunciÃ³n 3"); }
     private void navegar(String recurso) { navegar(recurso, ""); }
     private void navegar(String recurso, String titulo) {
         try {

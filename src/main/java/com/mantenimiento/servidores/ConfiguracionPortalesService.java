@@ -15,13 +15,17 @@ public class ConfiguracionPortalesService {
 
     public Map<String, PortalConfig> cargarPortales() throws IOException {
 
+        return cargarPortales(RUTA_CONFIG);
+    }
+    Map<String, PortalConfig> cargarPortales(Path archivo) throws IOException {
+        if (!Files.isRegularFile(archivo)) throw new IOException("No se encontro la configuracion: " + archivo);
         Map<String, PortalConfig> portales = new LinkedHashMap<>();
 
         PortalConfig portalActual = null;
 
-        for (String linea : Files.readAllLines(RUTA_CONFIG)) {
+        for (String linea : Files.readAllLines(archivo)) {
 
-            linea = linea.trim();
+            linea = linea.replace("\uFEFF", "").trim();
 
               if (linea.isBlank() || linea.startsWith("#")) {
                 continue;
@@ -32,6 +36,8 @@ public class ConfiguracionPortalesService {
                 String nombre =
                         linea.substring(1, linea.length() - 1);
 
+                if (nombre.equals("SIMA") || nombre.startsWith("UT:") || nombre.startsWith("MONITOR:")) { portalActual = null; continue; }
+                if (portales.containsKey(nombre)) throw new IOException("Portal duplicado en configuracion: " + nombre);
                 portalActual = new PortalConfig(nombre);
                 portales.put(nombre, portalActual);
 
@@ -43,14 +49,14 @@ public class ConfiguracionPortalesService {
             }
 
             if (linea.startsWith("ip=")) {
-                portalActual.ip = linea.substring(3);
+                portalActual.ip = linea.substring(3).trim();
             }
             else if (linea.startsWith("I")) {
 
                 String[] partes = linea.split("=", 2);
 
                 if (partes.length == 2) {
-                    portalActual.instancias.add(partes[1]);
+                    portalActual.instancias.add(partes[1].trim());
                 }
             }
         }

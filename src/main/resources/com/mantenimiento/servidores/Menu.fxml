@@ -2,12 +2,22 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mantenimiento.servidores.MenuController" prefWidth="620" prefHeight="420" spacing="16" stylesheets="@panel.css">
- <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
- <HBox alignment="CENTER_LEFT"><Label text="Panel Inicio" styleClass="title"/><Region HBox.hgrow="ALWAYS"/><Label fx:id="usuarioLabel"/></HBox>
- <Region prefHeight="8"/>
- <Button text="Recrear portales" onAction="#abrirPortales" prefWidth="353" prefHeight="41" minHeight="41" maxHeight="41"/>
- <VBox spacing="5"><Button text="Función 2" onAction="#abrirPendiente2" prefWidth="353" prefHeight="41" minHeight="41" maxHeight="41"/><Label text="Pendiente"/></VBox>
- <VBox spacing="5"><Button text="Función 3" onAction="#abrirPendiente3" prefWidth="353" prefHeight="41" minHeight="41" maxHeight="41"/><Label text="Pendiente"/></VBox>
- <Region VBox.vgrow="ALWAYS"/><Button text="Cerrar sesión" onAction="#cerrarSesion" styleClass="button, secondary"/>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mantenimiento.servidores.MenuController" prefWidth="397" prefHeight="336" minWidth="360" minHeight="320" spacing="14" stylesheets="@panel.css" styleClass="inicio-panel, panel-estandar">
+ <padding><Insets top="20" right="22" bottom="18" left="22"/></padding>
+ <HBox alignment="CENTER_LEFT" spacing="12">
+  <Label text="Panel Inicio" styleClass="title" minWidth="150"/>
+  <Region HBox.hgrow="ALWAYS"/>
+  <Label fx:id="usuarioLabel" styleClass="inicio-usuario" minWidth="0" maxWidth="220"/>
+ </HBox>
+ <Separator styleClass="inicio-separador"/>
+ <VBox spacing="10">
+  <Button text="SIMA" onAction="#abrirSima" maxWidth="Infinity" prefHeight="38" minHeight="38" maxHeight="38" styleClass="button, inicio-opcion"/>
+  <Button text="RECREAR PORTALES" onAction="#abrirPortales" maxWidth="Infinity" prefHeight="38" minHeight="38" maxHeight="38" styleClass="button, inicio-opcion"/>
+  <VBox spacing="4">
+   <Button text="FUNCION 3" onAction="#abrirPendiente3" maxWidth="Infinity" prefHeight="38" minHeight="38" maxHeight="38" styleClass="button, inicio-opcion"/>
+   <Label text="Pendiente" styleClass="inicio-pendiente"/>
+  </VBox>
+ </VBox>
+ <Region VBox.vgrow="ALWAYS" minHeight="0"/>
+ <Button text="Cerrar sesi&#243;n" onAction="#cerrarSesion" styleClass="button, inicio-salir" prefHeight="32" minHeight="32" maxHeight="32"/>
 </VBox>

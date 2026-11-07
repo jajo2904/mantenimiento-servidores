@@ -1,0 +1,30 @@
+.sima-cabecera { -fx-background-color: transparent; }
+.sima-cabecera > .label { -fx-text-fill: #29435f; }
+.sima-tablero { -fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0; -fx-border-width: 0; }
+.sima-tablero > .viewport { -fx-background-color: transparent; }
+.sima-boton-equipo {
+ -fx-padding: 0; -fx-background-color: linear-gradient(to bottom right, #EAE3D5, #D5C9B4);
+ -fx-background-radius: 5; -fx-border-color: #81735D; -fx-border-radius: 5;
+ -fx-border-width: 1; -fx-cursor: hand;
+ -fx-effect: dropshadow(gaussian, rgba(47,49,52,0.25), 3, 0, 0, 1);
+}
+.sima-boton-equipo:hover { -fx-background-color: linear-gradient(to bottom right, #F3EBDD, #E2D5BE); -fx-border-color: #5F5545; }
+.sima-boton-equipo:pressed { -fx-background-color: #C7B99F; -fx-effect: none; }
+.sima-boton-equipo:focused { -fx-border-color: #29435F; -fx-border-width: 1.5; }
+/* Mantener visible el boton y su indicador mientras se ejecuta el comando. */
+.sima-boton-equipo:disabled { -fx-opacity: 1; -fx-background-color: #DED5C4; -fx-border-color: #81735D; -fx-effect: none; }
+.sima-acciones { -fx-background-color: linear-gradient(to bottom right, #FFFFFF, #EFF4F8); -fx-background-radius: 9; -fx-border-color: #d6e0eb; -fx-border-radius: 9; -fx-border-width: 1; }
+.sima-acciones > .button { -fx-background-radius: 9; -fx-border-radius: 9; -fx-border-width: 1; -fx-border-color: #385572; }
+.sima-destinos { -fx-background-color: #dce5ef, #f7f9fc; -fx-background-insets: 0,1; -fx-background-radius: 6; -fx-padding: 2; }
+.sima-destinos .tree-cell { -fx-background-color: transparent; -fx-text-fill: #30465d; -fx-font-size: 11; -fx-padding: 6 5; }
+.sima-destinos .tree-cell:filled:hover { -fx-background-color: #e8eff7; }
+.sima-destinos .tree-cell:filled:selected { -fx-background-color: #d5e5f6; -fx-text-fill: #304A65; }
+.sima-resultados { -fx-font-size: 11; -fx-text-fill: #30465d; -fx-background-radius: 6; }
+.sima-resultados .content { -fx-background-color: #f7f9fc; }
+
+.sima-destinos .check-box > .box { -fx-background-color: white; -fx-border-color: #9aaabd; -fx-border-radius: 3; -fx-background-radius: 3; }
+.sima-destinos .check-box:selected > .box { -fx-background-color: #456585; -fx-border-color: #456585; }
+.sima-destinos .check-box:selected > .box > .mark { -fx-background-color: white; }
+.sima-destinos .check-box:indeterminate > .box > .mark { -fx-background-color: #456585; }
+
+.sima-boton-equipo .progress-indicator { -fx-progress-color: #456585; -fx-padding: 0; }

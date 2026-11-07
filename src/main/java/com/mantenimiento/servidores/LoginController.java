@@ -54,7 +54,7 @@ public class LoginController {
         stage.setTitle("Mantenimiento de Servidores");
         stage.centerOnScreen();
     } catch (IOException e) {
-        e.printStackTrace();
+        new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "No se pudo abrir la pantalla: " + e.getMessage()).showAndWait();
     }
 }
 
@@ -69,7 +69,7 @@ private void abrirPanelError() {
         stage.show();
 
     } catch (IOException e) {
-        e.printStackTrace();
+        new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "No se pudo abrir la pantalla: " + e.getMessage()).showAndWait();
     }
 }
 

@@ -24,7 +24,10 @@ public class ProcesosRemotosService {
             throw new IOException("Equipo remoto no valido; no se ejecutara mantenimiento.");
         }
         for (String nombre : PROCESOS) {
+            long inicio = System.nanoTime();
+            log.escribir("COMANDO taskkill /S " + equipo + " /F /IM " + nombre);
             Resultado resultado = comando.ejecutar(List.of("taskkill.exe", "/S", equipo, "/F", "/IM", nombre));
+            log.escribir("DuracionMs=" + (System.nanoTime()-inicio)/1_000_000);
             // Un proceso ausente tambien produce codigo no cero: la consulta posterior decide.
             log.escribir(equipo + " -> " + nombre + " -> cierre (codigo " + resultado.codigo() + "): " + resultado.salida().strip());
         }

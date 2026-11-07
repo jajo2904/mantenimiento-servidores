@@ -1,106 +1,159 @@
 package com.mantenimiento.servidores;
+
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.concurrent.Task;
-import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
+import javafx.stage.Stage;
 
 public class PanelPrincipalController {
-    @FXML private Button VolverButton;
+    @FXML private Button VolverButton, EjecutarButton;
+    @FXML private Label UsuarioLabel, EstadoLabel;
+    @FXML private TextArea HistorialArea;
+    @FXML private CheckBox portal001Check, portal002Check, portal003Check, portal004Check,
+            portal005Check, portal006Check, portal012Check, portal015Check, portal024Check,
+            seleccionarTodoCheck;
+
+    private final Map<String, CheckBox> portales = new LinkedHashMap<>();
+    private final ConfiguracionPortalesService configuracionService = new ConfiguracionPortalesService();
+    private final RecrearPortalesService recrearPortalesService = new RecrearPortalesService();
+    private String usuarioActual;
+    private boolean ejecutando;
+
+    @FXML private void initialize() {
+        String[] ids = {"001", "002", "003", "004", "005", "006", "012", "015", "024"};
+        CheckBox[] checks = {portal001Check, portal002Check, portal003Check, portal004Check,
+                portal005Check, portal006Check, portal012Check, portal015Check, portal024Check};
+        for (int i = 0; i < ids.length; i++) {
+            portales.put(ids[i], checks[i]);
+            checks[i].selectedProperty().addListener((o, antes, despues) -> actualizarSeleccion());
+        }
+    }
+
+    public void setUsuario(String usuario) {
+        usuarioActual = usuario;
+        UsuarioLabel.setText(usuario);
+    }
 
     @FXML private void volverMenu() throws IOException {
-        javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("Menu.fxml"));
-        javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-        MenuController menu = loader.getController();
-        menu.setUsuario(usuarioActual);
-        javafx.stage.Stage stage = (javafx.stage.Stage) VolverButton.getScene().getWindow();
+        if (ejecutando) return;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Menu.fxml"));
+        Scene scene = new Scene(loader.load());
+        ((MenuController) loader.getController()).setUsuario(usuarioActual);
+        Stage stage = (Stage) VolverButton.getScene().getWindow();
         stage.setScene(scene);
         stage.sizeToScene();
         stage.centerOnScreen();
     }
 
-    @FXML
-    private Label UsuarioLabel;
-
-    public void setUsuario(String usuario) {
-        UsuarioLabel.setText(usuario);
-        this.usuarioActual = usuario;
+    @FXML private void seleccionarTodos() {
+        boolean seleccionar = seleccionarTodoCheck.isSelected();
+        portales.values().forEach(check -> check.setSelected(seleccionar));
+        actualizarSeleccion();
     }
-@FXML private CheckBox portal001Check;
-@FXML private CheckBox portal002Check;
-@FXML private CheckBox portal003Check;
-@FXML private CheckBox portal004Check;
-@FXML private CheckBox portal005Check;
-@FXML private CheckBox portal006Check;
-@FXML private CheckBox portal012Check;
-@FXML private CheckBox portal015Check;
-@FXML private CheckBox portal024Check;
-@FXML private CheckBox seleccionarTodoCheck;
-@FXML
-private Button EjecutarButton;
-@FXML
-private void seleccionarTodos() {
-    boolean seleccionar = seleccionarTodoCheck.isSelected();
-    portal001Check.setSelected(seleccionar);
-    portal002Check.setSelected(seleccionar);
-    portal003Check.setSelected(seleccionar);
-    portal004Check.setSelected(seleccionar);
-    portal005Check.setSelected(seleccionar);
-    portal006Check.setSelected(seleccionar);
-    portal012Check.setSelected(seleccionar);
-    portal015Check.setSelected(seleccionar);
-    portal024Check.setSelected(seleccionar);
-}
 
-private final ConfiguracionPortalesService configuracionService =
-        new ConfiguracionPortalesService();
+    private void actualizarSeleccion() {
+        long elegidos = portales.values().stream().filter(CheckBox::isSelected).count();
+        seleccionarTodoCheck.setSelected(elegidos == portales.size());
+        seleccionarTodoCheck.setIndeterminate(elegidos > 0 && elegidos < portales.size());
+    }
 
-@FXML
-private void ejecutar() {
-    var checks = java.util.List.of(portal001Check, portal002Check, portal003Check, portal004Check, portal005Check, portal006Check, portal012Check, portal015Check, portal024Check);
-    String[] ids = {"001","002","003","004","005","006","012","015","024"};
-    var seleccion = new java.util.ArrayList<String>();
-    for (int i=0;i<ids.length;i++) if(checks.get(i).isSelected()) seleccion.add(ids[i]);
-    if(seleccion.isEmpty()) { EstadoLabel.setText("Seleccione al menos un portal."); return; }
-    EjecutarButton.setDisable(true); VolverButton.setDisable(true); HistorialArea.clear();
-    Task<Void> tarea = new Task<>() {
-      private void mostrar(String texto) {
-        javafx.application.Platform.runLater(() -> { EstadoLabel.setText(texto); HistorialArea.appendText(texto + "\n"); });
-      }
-      @Override protected Void call() throws Exception {
-        var portales = configuracionService.cargarPortales();
-        int fallos=0;
-        for(String id: seleccion) {
-          String nombre="Portal"+id;
-          var portal=portales.get("SVR-APL-"+id);
-          if(portal==null) portal=portales.get("SRV-APL-"+id);
-          try {
-            recrearPortalesService.ejecutar(portal, usuarioActual, nombre, this::mostrar);
-            mostrar(nombre+" recreado.");
-          } catch(Exception e) {
-            fallos++;
-            mostrar(nombre+" no se pudo recrear porque " + (e.getMessage()==null?e.getClass().getSimpleName():e.getMessage()));
-          }
+    private void bloquearControles(boolean bloquear) {
+        ejecutando = bloquear;
+        EjecutarButton.setDisable(bloquear);
+        VolverButton.setDisable(bloquear);
+        seleccionarTodoCheck.setDisable(bloquear);
+        portales.values().forEach(check -> check.setDisable(bloquear));
+    }
+
+    private void mostrar(String texto) {
+        // El detalle conserva sus lineas en el historial, sin agrandar el indicador.
+        EstadoLabel.setText(texto.lines().findFirst().orElse(""));
+        EstadoLabel.setTooltip(new Tooltip(EstadoLabel.getText()));
+        HistorialArea.appendText(texto + "\n");
+    }
+
+    private void registrarFallo(String contexto, Throwable error) {
+        try {
+            SessionLog.escribir(contexto, "Fallo durante la recreacion de portales", error);
+        } catch (IOException falloLog) {
+            error.addSuppressed(falloLog);
+            mostrar("No se pudo guardar el detalle en el log de la sesion.");
+            error.printStackTrace();
         }
-        mostrar("Finalizado: "+(seleccion.size()-fallos)+" correctos; "+fallos+" con error.");
-        return null;
-      }
-    };
-    tarea.setOnSucceeded(event -> { VolverButton.setDisable(false); EjecutarButton.setDisable(false); });
-    tarea.setOnFailed(event -> {
-      VolverButton.setDisable(false); EjecutarButton.setDisable(false);
-      String error="No se pudo iniciar: "+tarea.getException().getMessage();
-      EstadoLabel.setText(error); HistorialArea.appendText(error+"\n");
-    });
-    Thread hilo=new Thread(tarea); hilo.setDaemon(true); hilo.start();
-}
-@FXML private javafx.scene.control.TextArea HistorialArea;
+    }
 
-private String usuarioActual;
-
-private final RecrearPortalesService recrearPortalesService =
-         new RecrearPortalesService();
-@FXML private Label EstadoLabel;
+    @FXML private void ejecutar() {
+        if (ejecutando) return;
+        var seleccion = portales.entrySet().stream().filter(e -> e.getValue().isSelected())
+                .map(Map.Entry::getKey).toList();
+        if (seleccion.isEmpty()) {
+            EstadoLabel.setText("Seleccione al menos un portal.");
+            return;
+        }
+        bloquearControles(true);
+        HistorialArea.clear();
+        mostrar("Cargando configuracion de portales...");
+        Stage ventana = (Stage) EjecutarButton.getScene().getWindow();
+        var cierreAnterior = ventana.getOnCloseRequest();
+        ventana.setOnCloseRequest(event -> {
+            event.consume();
+            EstadoLabel.setText("Espere a que termine el mantenimiento antes de cerrar.");
+        });
+        Task<Void> tarea = new Task<>() {
+            private void progreso(String mensaje) {
+                Platform.runLater(() -> mostrar(mensaje));
+            }
+            @Override protected Void call() throws Exception {
+                var configuracion = configuracionService.cargarPortales();
+                int fallos = 0;
+                for (String id : seleccion) {
+                    String nombre = "Portal" + id;
+                    var portal = configuracion.get("SVR-APL-" + id);
+                    if (portal == null) portal = configuracion.get("SRV-APL-" + id);
+                    try {
+                        recrearPortalesService.ejecutar(portal, usuarioActual, nombre, this::progreso);
+                        progreso(nombre + " completado.");
+                    } catch (Exception e) {
+                        fallos++;
+                        String mensaje = e.getMessage();
+                        progreso(mensaje != null && mensaje.startsWith(nombre)
+                                ? mensaje : nombre + " ¡Fallido!\n" + e);
+                        // Tambien registra fallos previos a crear el log del portal.
+                        try { SessionLog.escribir(nombre, "Recreacion fallida", e); }
+                        catch (IOException logError) {
+                            e.addSuppressed(logError);
+                            progreso("No se pudo guardar el detalle en el log de la sesion.");
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                progreso("Finalizado: " + (seleccion.size() - fallos) + " correctos; " + fallos + " con error.");
+                return null;
+            }
+        };
+        Runnable finalizar = () -> {
+            ventana.setOnCloseRequest(cierreAnterior);
+            bloquearControles(false);
+        };
+        tarea.setOnSucceeded(event -> finalizar.run());
+        tarea.setOnCancelled(event -> finalizar.run());
+        tarea.setOnFailed(event -> {
+            finalizar.run();
+            mostrar("No se pudo iniciar el mantenimiento. Consulte el log de la sesion.");
+            registrarFallo("Inicio del mantenimiento", tarea.getException());
+        });
+        Thread hilo = new Thread(tarea, "recrear-portales");
+        hilo.setDaemon(true);
+        hilo.start();
+    }
 }

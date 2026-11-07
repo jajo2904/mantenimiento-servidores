@@ -1,6 +1,39 @@
- .root { -fx-background-color: #f3f6fa; -fx-font-family: "Segoe UI"; -fx-font-size: 13; }
-.label { -fx-text-fill: #536579; }
-.title { -fx-text-fill: #16324f; -fx-font-size: 23; -fx-font-weight: bold; }
-.button { -fx-background-color: #1d5fa5; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 18; -fx-cursor: hand; }
-.button:hover { -fx-background-color: #174c84; }
-.secondary { -fx-background-color: #dce6f1; -fx-text-fill: #16324f; }
+/* Paleta comun: azul desaturado, crema y superficies claras. */
+.root {
+ -fx-background-color: linear-gradient(to bottom right, #F9FBFD, #E7EEF5);
+ -fx-font-family: "Segoe UI"; -fx-font-size: 13;
+ -fx-accent: #456585; -fx-focus-color: #7898B5; -fx-faint-focus-color: transparent;
+}
+.label { -fx-text-fill: #465C72; }
+.title { -fx-text-fill: #29435F; -fx-font-size: 22; -fx-font-weight: bold; }
+.button {
+ -fx-background-color: linear-gradient(to bottom right, #5A7E9C, #3D5D7C);
+ -fx-text-fill: #FFFFFF; -fx-font-weight: bold;
+ -fx-background-radius: 9; -fx-border-radius: 9;
+ -fx-border-color: #365571; -fx-border-width: 1;
+ -fx-padding: 8 16; -fx-cursor: hand;
+ -fx-effect: dropshadow(gaussian, rgba(35,58,81,0.18), 5, 0, 0, 2);
+}
+.button:hover { -fx-background-color: linear-gradient(to bottom right, #6C8FA9, #4A6D8C); }
+.button:pressed { -fx-background-color: #385875; -fx-effect: none; }
+.button:focused { -fx-border-color: #213F5C; -fx-border-width: 2; }
+.button:disabled { -fx-opacity: 0.65; -fx-effect: none; }
+.secondary, .inicio-salir {
+ -fx-background-color: linear-gradient(to bottom right, #F0ECE3, #DCD4C4);
+ -fx-text-fill: #354B60; -fx-border-color: #ADA493;
+}
+.secondary:hover, .inicio-salir:hover { -fx-background-color: linear-gradient(to bottom right, #F5F0E6, #E7DECC); }
+.secondary:pressed, .inicio-salir:pressed { -fx-background-color: #CFC5B4; }
+.inicio-opcion { -fx-font-size: 13; -fx-padding: 7 16; }
+.inicio-salir { -fx-padding: 5 12; -fx-font-size: 12; }
+.inicio-usuario { -fx-font-size: 11; -fx-text-fill: #536579; }
+.inicio-pendiente { -fx-font-size: 11; -fx-text-fill: #68788A; -fx-padding: 0 4; }
+.inicio-separador .line { -fx-border-color: #CDD9E4; -fx-border-width: 1 0 0 0; }
+.text-input {
+ -fx-text-fill: #30465D; -fx-prompt-text-fill: #667A8F;
+ -fx-background-color: #CBD7E2, #FAFCFE; -fx-background-insets: 0, 1;
+ -fx-background-radius: 7; -fx-padding: 6 9;
+}
+.text-input:focused { -fx-background-color: #7898B5, #FFFFFF; }
+.text-area { -fx-padding: 4; }
+.text-area .content { -fx-background-color: #FAFCFE; -fx-background-radius: 6; }

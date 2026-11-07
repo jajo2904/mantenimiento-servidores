@@ -19,9 +19,20 @@ public class App extends Application {
         Scene scene = new Scene(loader.load());
 
         stage.setTitle("Mantenimiento de Servidores");
+        stage.setResizable(true);
+        stage.sceneProperty().addListener((observable, anterior, nueva) -> ajustarMinimos(stage, nueva));
         stage.setScene(scene);
-        stage.setResizable(false);
         stage.show();
+    }
+
+    private static void ajustarMinimos(Stage stage, Scene scene) {
+        if (scene.getRoot() instanceof javafx.scene.layout.Region root) {
+            // Reservar el marco de Windows y respetar el minimo propio de cada panel.
+            double ancho = root.getMinWidth() > 0 ? root.getMinWidth() : root.prefWidth(-1);
+            double alto = root.getMinHeight() > 0 ? root.getMinHeight() : root.prefHeight(-1);
+            stage.setMinWidth(Math.max(320, ancho) + 16);
+            stage.setMinHeight(Math.max(200, alto) + 39);
+        }
     }
 
     public static void main(String[] args) {

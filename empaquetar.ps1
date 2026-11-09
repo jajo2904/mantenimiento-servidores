@@ -1,4 +1,4 @@
-param([switch] $VerificarHerramientas)
+param([switch] $VerificarHerramientas, [switch] $SinPruebas)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $project = $PSScriptRoot
@@ -60,7 +60,11 @@ try {
     # Directorio nuevo en cada ejecucion: no borra distribuciones anteriores.
     $build = Join-Path $toolDir ('build-' + [guid]::NewGuid().ToString('N'))
     $classesDir = Join-Path $build 'maven'
-    Invoke-Checked $maven @('--batch-mode', "-Dpackaging.build.directory=$classesDir", 'verify')
+    if ($SinPruebas) {
+        Invoke-Checked $maven @('--batch-mode', "-Dpackaging.build.directory=$classesDir", '-Dmaven.test.skip=true', 'package')
+    } else {
+        Invoke-Checked $maven @('--batch-mode', "-Dpackaging.build.directory=$classesDir", 'verify')
+    }
     $inputDir = Join-Path $build 'input'
     $runtime = Join-Path $build 'runtime'
     $dest = Join-Path $project ('dist\' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
@@ -75,10 +79,12 @@ try {
     }
     Invoke-Checked "$jdk\bin\jpackage.exe" @('--type', 'app-image', '--name', 'MantenimientoServidores', '--app-version', '1.0', '--vendor', 'Mantenimiento Servidores', '--input', $inputDir, '--main-jar', $jarName, '--main-class', 'com.mantenimiento.servidores.Launcher', '--runtime-image', $runtime, '--java-options', '--add-modules=javafx.controls,javafx.fxml', '--dest', $dest)
     $app = Join-Path $dest 'MantenimientoServidores'
-    Copy-Item -LiteralPath (Join-Path $project 'EMPAQUETADO.md') -Destination (Join-Path $app 'LEEME.md')
     Invoke-Checked "$app\runtime\bin\java.exe" @('-version')
-    & (Join-Path $project 'verificar-paquete.ps1') -AppDirectory $app
-    Compress-Archive -LiteralPath $app -DestinationPath (Join-Path $dest 'MantenimientoServidores-Windows-x64-Java21.zip')
+    if (!$SinPruebas) { & (Join-Path $project 'verificar-paquete.ps1') -AppDirectory $app }
+    $configDir = Join-Path $dest 'Configuracion'
+    New-Item -ItemType Directory -Force $configDir | Out-Null
+    Copy-Item -LiteralPath 'C:\MantenimientoServidores\portales.txt' -Destination (Join-Path $configDir 'portales.txt')
+    Compress-Archive -Path @($app, $configDir) -DestinationPath (Join-Path $dest 'MantenimientoServidores-Windows-x64-Java21.zip')
     Write-Host "Aplicacion lista: $app"
 } finally {
     $env:JAVA_HOME = $oldJavaHome

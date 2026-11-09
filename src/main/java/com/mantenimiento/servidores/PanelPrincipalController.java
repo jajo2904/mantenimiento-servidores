@@ -28,6 +28,11 @@ public class PanelPrincipalController {
     private final RecrearPortalesService recrearPortalesService = new RecrearPortalesService();
     private String usuarioActual;
     private boolean ejecutando;
+    private final Map<String,String> estadosPortales=new LinkedHashMap<>();
+    private static final java.util.regex.Pattern PORTAL_MENSAJE=java.util.regex.Pattern.compile("^(Portal[0-9]+)\\b");
+    private String resumenGeneral="";
+    private boolean renderPendiente;
+    private final Tooltip ayudaEstado=new Tooltip();
 
     @FXML private void initialize() {
         String[] ids = {"001", "002", "003", "004", "005", "006", "012", "015", "024"};
@@ -76,10 +81,24 @@ public class PanelPrincipalController {
     }
 
     private void mostrar(String texto) {
-        // El detalle conserva sus lineas en el historial, sin agrandar el indicador.
-        EstadoLabel.setText(texto.lines().findFirst().orElse(""));
-        EstadoLabel.setTooltip(new Tooltip(EstadoLabel.getText()));
-        HistorialArea.appendText(texto + "\n");
+        String linea=texto.lines().findFirst().orElse("");
+        EstadoLabel.setText(linea);
+        ayudaEstado.setText(linea);
+        if(EstadoLabel.getTooltip()!=ayudaEstado)EstadoLabel.setTooltip(ayudaEstado);
+        var portal=PORTAL_MENSAJE.matcher(linea);
+        if(portal.find()){
+            estadosPortales.put(portal.group(1),linea);
+            if(resumenGeneral.equals("Cargando configuracion de portales..."))resumenGeneral="Mantenimiento en curso...";
+        }
+        else resumenGeneral=linea;
+        if(renderPendiente)return;
+        renderPendiente=true;
+        Platform.runLater(()->{
+            renderPendiente=false;
+            String filas=String.join("\n",estadosPortales.values());
+            String contenido=filas+(filas.isEmpty()||resumenGeneral.isEmpty()?"":"\n")+resumenGeneral;
+            if(!contenido.equals(HistorialArea.getText()))HistorialArea.setText(contenido);
+        });
     }
 
     private void registrarFallo(String contexto, Throwable error) {
@@ -101,6 +120,9 @@ public class PanelPrincipalController {
             return;
         }
         bloquearControles(true);
+        estadosPortales.clear();
+        seleccion.forEach(id->estadosPortales.put("Portal"+id,"Portal"+id+" - En espera"));
+        resumenGeneral="";
         HistorialArea.clear();
         mostrar("Cargando configuracion de portales...");
         Stage ventana = (Stage) EjecutarButton.getScene().getWindow();
@@ -115,8 +137,8 @@ public class PanelPrincipalController {
             }
             @Override protected Void call() throws Exception {
                 var configuracion = configuracionService.cargarPortales();
-                int fallos = 0;
-                for (String id : seleccion) {
+                var fallos = new java.util.concurrent.atomic.AtomicInteger();
+                OperacionesEquipos.todos(seleccion, id -> {
                     String nombre = "Portal" + id;
                     var portal = configuracion.get("SVR-APL-" + id);
                     if (portal == null) portal = configuracion.get("SRV-APL-" + id);
@@ -124,10 +146,8 @@ public class PanelPrincipalController {
                         recrearPortalesService.ejecutar(portal, usuarioActual, nombre, this::progreso);
                         progreso(nombre + " completado.");
                     } catch (Exception e) {
-                        fallos++;
-                        String mensaje = e.getMessage();
-                        progreso(mensaje != null && mensaje.startsWith(nombre)
-                                ? mensaje : nombre + " ¡Fallido!\n" + e);
+                        fallos.incrementAndGet();
+                        progreso(nombre + " - Fallido. Consulte el log.");
                         // Tambien registra fallos previos a crear el log del portal.
                         try { SessionLog.escribir(nombre, "Recreacion fallida", e); }
                         catch (IOException logError) {
@@ -136,8 +156,8 @@ public class PanelPrincipalController {
                             e.printStackTrace();
                         }
                     }
-                }
-                progreso("Finalizado: " + (seleccion.size() - fallos) + " correctos; " + fallos + " con error.");
+                });
+                progreso("Finalizado: " + (seleccion.size() - fallos.get()) + " correctos; " + fallos.get() + " con error.");
                 return null;
             }
         };

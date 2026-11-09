@@ -12,8 +12,11 @@ El inventario conserva 79 equipos activos (64 UT) y tres UT deshabilitadas sin I
 Las selecciones de acciones rapidas se desmarcan tras dos minutos de inactividad;
 el plazo se reinicia al cambiar la seleccion y al terminar una accion.
 
-SIMA: rojo sin ping, amarillo con ping, gris si no se pudo realizar la consulta.
-Verde reservado para servicios aun no definidos; no se afirma salud de servicios.
+SIMA: rojo sin ping, amarillo si faltan procesos/servicios o reglas, gris si la consulta esta pendiente o falla.
+Verde confirma presencia de todos los procesos y estado Running de los servicios configurados; no es una prueba funcional del portal.
+Las reglas `procesos=` y `servicios=` se definen por equipo, separadas por comas. Se entregan vacias hasta confirmar `app_runner.py` y `Distribution.xml`.
+Se consulta WMI en segundo plano con un maximo de seis consultas simultaneas, cada una limitada a ocho segundos.
+La pausa visual es de 108 ms y la espera del ping es de 1080 ms; el recorrido real depende de la red.
 
 La limpieza ahora requiere consultar procesos remotos mediante Windows PowerShell
 5.1 / WMI (solo lectura). Si falla la consulta o Tomcat sigue activo, no borra.

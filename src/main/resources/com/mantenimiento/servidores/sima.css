@@ -27,4 +27,9 @@
 .sima-destinos .check-box:selected > .box > .mark { -fx-background-color: white; }
 .sima-destinos .check-box:indeterminate > .box > .mark { -fx-background-color: #456585; }
 
-.sima-boton-equipo .progress-indicator { -fx-progress-color: #456585; -fx-padding: 0; }
+.sima-boton-equipo .progress-indicator { -fx-progress-color: #29435F; -fx-padding: 0; }
+.sima-boton-equipo .progress-indicator:disabled { -fx-opacity: 1; }
+
+.sima-tarjeta .label { -fx-text-fill: #172C42; }
+
+.sima-tarjeta:consultando { -fx-effect: innershadow(gaussian, rgba(40,70,100,0.65), 6, 0.25, 0, 0); }

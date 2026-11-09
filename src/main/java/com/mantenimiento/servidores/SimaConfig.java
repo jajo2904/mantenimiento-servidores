@@ -4,9 +4,15 @@ import java.io.IOException;
 import java.util.*;
 public class SimaConfig {
  public static final Path ARCHIVO=Path.of("C:\\MantenimientoServidores\\portales.txt");
- public record Equipo(String nombre,String ip,String grupo,int orden,boolean ut) {}
+ public static final List<String> PROCESOS_AFIS=List.of("APPRunnera.exe","DisRunnera.exe","ManagerRunnera.exe");
+ public static final List<String> PROCESOS_UT=List.of("APPRunnera.exe","ManagerRunnera.exe","python.exe");
+ public record Equipo(String nombre,String ip,String grupo,int orden,boolean ut,List<String> procesos,List<String> servicios) {
+  public Equipo {procesos=List.copyOf(procesos);servicios=List.copyOf(servicios);}
+  public Equipo(String nombre,String ip,String grupo,int orden,boolean ut){this(nombre,ip,grupo,orden,ut,List.of(),List.of());}
+ }
  public static List<Equipo> cargar(String texto) throws IOException {
   List<Equipo> equipos=new ArrayList<>(); String nombre=null,ip="",grupo=""; boolean activo=true,ut=false; int orden=99999;
+  List<String> procesos=List.of(),servicios=List.of();
   Set<String> nombres=new HashSet<>(), claves=new HashSet<>();
   for(String raw:(texto+"\n[FIN]").split("\\R")) {
    String s=raw.replace("\uFEFF","").trim(); if(s.isEmpty()||s.startsWith("#"))continue;
@@ -14,11 +20,11 @@ public class SimaConfig {
     if(nombre!=null && activo) {
      validarDestino(ip);
      if(nombre.isBlank()||grupo.isBlank())throw new IOException("Nombre o grupo vacio: "+nombre);
-     equipos.add(new Equipo(nombre,ip,grupo,orden,ut));
+     equipos.add(new Equipo(nombre,ip,grupo,orden,ut,procesos.isEmpty()&&servicios.isEmpty()?(ut?PROCESOS_UT:PROCESOS_AFIS):procesos,servicios));
     }
     String seccion=s.substring(1,s.length()-1).trim();
     if(!nombres.add(seccion.toUpperCase(Locale.ROOT)))throw new IOException("Seccion duplicada: "+seccion);
-    nombre=null;ip="";activo=true;ut=false;orden=99999;claves.clear();
+    nombre=null;ip="";activo=true;ut=false;orden=99999;claves.clear();procesos=List.of();servicios=List.of();
     if(seccion.startsWith("UT:")){nombre=seccion.substring(3).trim();grupo="UT";ut=true;}
     else if(seccion.startsWith("MONITOR:")){nombre=seccion.substring(8).trim();grupo="Otros equipos";}
     else if(seccion.startsWith("SVR-APL-")||seccion.startsWith("SRV-APL-")){nombre=seccion;grupo="Portales";}
@@ -29,6 +35,8 @@ public class SimaConfig {
     if(!claves.add(clave.toLowerCase(Locale.ROOT)))throw new IOException("Clave duplicada: "+clave);
     s=clave+"="+s.substring(igual+1).trim();
     if(nombre==null)continue;
+    if(s.startsWith("procesos="))procesos=listaEsperada(s.substring(9),true);
+    if(s.startsWith("servicios="))servicios=listaEsperada(s.substring(10),false);
     if(s.startsWith("grupo="))grupo=s.substring(6).trim();
     if(s.startsWith("orden=")){try{orden=Integer.parseInt(s.substring(6).trim());}catch(NumberFormatException e){throw new IOException("Orden no valido en "+nombre,e);}}
     if(s.startsWith("ip="))ip=s.substring(3).trim();
@@ -37,6 +45,18 @@ public class SimaConfig {
   }
   equipos.sort(Comparator.comparingInt(Equipo::orden));
   return equipos;
+ }
+ static List<String> listaEsperada(String texto,boolean procesos) throws IOException {
+  if(texto.isBlank())return List.of();
+  List<String> lista=new ArrayList<>();Set<String> unicos=new HashSet<>();
+  for(String nombre:texto.split(",",-1)){
+   nombre=nombre.trim();
+   if(nombre.isEmpty()||nombre.length()>256||nombre.chars().anyMatch(Character::isISOControl)||
+      (procesos&&!nombre.matches("(?i)[a-z0-9_. -]+\\.exe")))throw new IOException("Nombre de proceso o servicio no valido: "+nombre);
+   if(!unicos.add(nombre.toLowerCase(Locale.ROOT)))throw new IOException("Proceso o servicio duplicado: "+nombre);
+   lista.add(nombre);
+  }
+  return List.copyOf(lista);
  }
  public static void validarDestino(String destino) throws IOException {
   if(destino==null || destino.length()>253 || !destino.matches("[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*"))

@@ -3,7 +3,9 @@
 Copiar la carpeta **MantenimientoServidores completa** al equipo de destino y abrir
 **MantenimientoServidores.exe**. Conservar `app` y `runtime` junto al ejecutable.
 Si se entrega como ZIP, extraerlo completo antes de abrir la aplicacion.
-No requiere instalar Java, Maven, JavaFX ni ejecutar un BAT o PowerShell en destino.
+Para abrir la app no requiere instalar Java, Maven o JavaFX ni ejecutar comandos manuales.
+SIMA utiliza Windows PowerShell/WMI para las consultas y acciones remotas.
+El ZIP incluye Configuracion/portales.txt y LLEVAR-AL-TRABAJO.md.
 
 El runtime incluye Temurin **21.0.13+9** y JavaFX **21.0.8** (base, graphics,
 controls y fxml). Las DLL de JavaFX, incluida `prism_sw.dll`, estan en
@@ -19,7 +21,7 @@ de TI. El paquete no cambia politicas de Windows ni permisos de los servidores.
 ## Reconstruir en el PC de desarrollo
 
 Requisitos: Windows x64, PowerShell, Maven y acceso a Internet la primera vez.
-Desde la carpeta del proyecto: `powershell -File .\empaquetar.ps1`.
+Desde la carpeta del proyecto: `powershell -ExecutionPolicy Bypass -File .\empaquetar.ps1`.
 El script obtiene JDK 21 y JavaFX JMODS con versiones y SHA256 fijados, compila
 con JDK 21, ejecuta las pruebas de Maven, crea el runtime con jlink y genera
 la aplicacion con jpackage. No utiliza el Java 25 del equipo.

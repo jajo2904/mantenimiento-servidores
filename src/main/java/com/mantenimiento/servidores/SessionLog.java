@@ -10,7 +10,13 @@ public final class SessionLog {
   if(archivo==null){
    Path base=Path.of("C:\\MantenimientoServidores\\Logs");
    try{Files.createDirectories(base);archivo=Files.createFile(base.resolve(NOMBRE));}
-   catch(IOException e){base=Path.of(System.getenv("LOCALAPPDATA"),"MantenimientoServidores","Logs");Files.createDirectories(base);archivo=Files.createFile(base.resolve(NOMBRE));}
+   catch(IOException e){
+    String local=System.getenv("LOCALAPPDATA");
+    if(local==null||local.isBlank())throw new IOException("No hay una ubicacion disponible para el log de sesion.",e);
+    base=Path.of(local,"MantenimientoServidores","Logs");
+    try{Files.createDirectories(base);archivo=Files.createFile(base.resolve(NOMBRE));}
+    catch(IOException alternativo){alternativo.addSuppressed(e);throw alternativo;}
+   }
   }
   StringWriter traza=new StringWriter();if(error!=null)error.printStackTrace(new PrintWriter(traza));
   Files.writeString(archivo,LocalDateTime.now()+" ["+contexto+"] "+detalle+System.lineSeparator()+traza,StandardOpenOption.APPEND);

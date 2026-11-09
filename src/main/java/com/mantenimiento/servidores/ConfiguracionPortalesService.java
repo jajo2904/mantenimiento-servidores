@@ -22,6 +22,7 @@ public class ConfiguracionPortalesService {
         Map<String, PortalConfig> portales = new LinkedHashMap<>();
 
         PortalConfig portalActual = null;
+        java.util.Set<String> claves=new java.util.HashSet<>();
 
         for (String linea : Files.readAllLines(archivo)) {
 
@@ -33,6 +34,7 @@ public class ConfiguracionPortalesService {
 
             if (linea.startsWith("[") && linea.endsWith("]")) {
 
+                claves.clear();
                 String nombre =
                         linea.substring(1, linea.length() - 1);
 
@@ -48,10 +50,15 @@ public class ConfiguracionPortalesService {
                 continue;
             }
 
+            int separador=linea.indexOf('=');
+            if(separador<1)throw new IOException("Linea de configuracion no valida: "+linea);
+            String clave=linea.substring(0,separador).trim();
+            if(!claves.add(clave.toLowerCase(java.util.Locale.ROOT)))throw new IOException("Clave duplicada en "+portalActual.nombre+": "+clave);
+            linea=clave+"="+linea.substring(separador+1).trim();
             if (linea.startsWith("ip=")) {
                 portalActual.ip = linea.substring(3).trim();
             }
-            else if (linea.startsWith("I")) {
+            else if (clave.matches("I[0-9]+")) {
 
                 String[] partes = linea.split("=", 2);
 
@@ -83,7 +90,7 @@ public class ConfiguracionPortalesService {
         }
 
         public List<String> getInstancias() {
-            return instancias;
+            return List.copyOf(instancias);
         }
     }
 }

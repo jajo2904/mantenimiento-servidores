@@ -32,22 +32,27 @@ public class InicioUtService {
   try{Path.of(valor);}catch(InvalidPathException e){throw new IOException("Ruta de inicio no valida.",e);}
  }
  public static String iniciar(SimaConfig.Equipo equipo) throws IOException {
+  if(!reservar(equipo.ip()))return "Ya hay una solicitud en curso para este equipo.";
+  try{return iniciarReservado(equipo);}finally{liberar(equipo.ip());}
+ }
+ static String iniciarReservado(SimaConfig.Equipo equipo) throws IOException {
   String texto=Files.readString(SimaConfig.ARCHIVO);
   SimaConfig.verificarEquipo(texto,equipo);
   var inicio=configuracionInicio(texto);
-  if(!reservar(equipo.ip()))return "Ya hay una solicitud en curso para este equipo.";
-  try {
+   var estado=ServiciosSimaService.consultar(equipo);
+   SessionLog.escribir("Antes del inicio "+equipo.nombre(),estado.detalle(),null);
+   if(estado.completo())return "Los procesos y servicios configurados ya estan activos; no se solicito otro inicio.";
+   if(estado.lanzadorActivo())return "El lanzador esta activo o no se puede descartar su ejecucion; no se solicito otra copia.";
    String python=inicio.python(),script=inicio.script();
    String comando="\""+python+"\" \""+script+"\"";
-   String ps="$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[Text.UTF8Encoding]::new(); try { $equipo="+literal(equipo.ip())+"; $script="+literal(script)+"; $procesos=@(Get-WmiObject Win32_Process -ComputerName $equipo -Filter \"Name='python.exe' OR Name='pythonw.exe'\"); foreach($p in $procesos){if(!$p.CommandLine){throw 'No se puede comprobar si el script ya esta ejecutandose'};if($p.CommandLine.IndexOf($script,[StringComparison]::OrdinalIgnoreCase) -ge 0){Write-Output 'YA_EN_EJECUCION';exit 0}}; $clase=Get-WmiObject -List Win32_Process -ComputerName $equipo; $r=$clase.Create("+literal(comando)+"); Write-Output ('ReturnValue='+$r.ReturnValue+'; PID='+$r.ProcessId); if($r.ReturnValue -ne 0){exit 1}; Write-Output 'SOLICITUD_ACEPTADA' }catch{Write-Output $_.Exception.ToString();exit 1}";
+   String ps="$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.UTF8Encoding]::new(); try { $equipo="+literal(equipo.ip())+"; $script="+literal(script)+"; $procesos=@(Get-WmiObject Win32_Process -ComputerName $equipo -Filter \"Name='python.exe' OR Name='pythonw.exe'\"); foreach($p in $procesos){if(!$p.CommandLine){throw 'No se puede comprobar si el script ya esta ejecutandose'};if($p.CommandLine.IndexOf($script,[StringComparison]::OrdinalIgnoreCase) -ge 0){Write-Output 'YA_EN_EJECUCION';exit 0}}; $clase=Get-WmiObject -List Win32_Process -ComputerName $equipo; $r=$clase.Create("+literal(comando)+"); Write-Output ('ReturnValue='+$r.ReturnValue+'; PID='+$r.ProcessId); if($r.ReturnValue -ne 0){exit 1}; Write-Output 'SOLICITUD_ACEPTADA' }catch{Write-Output $_.Exception.ToString();exit 1}";
    String encoded=Base64.getEncoder().encodeToString(ps.getBytes(java.nio.charset.StandardCharsets.UTF_16LE));
    SessionLog.escribir("Inicio equipo", "equipo="+equipo.nombre()+" IP="+equipo.ip()+" comando="+comando,null);
-   var r=ComandoWindows.ejecutar(List.of(ComandoWindows.sistema("WindowsPowerShell\\v1.0\\powershell.exe"),"-NoProfile","-NonInteractive","-EncodedCommand",encoded),30,java.nio.charset.StandardCharsets.UTF_8);
+   var r=ComandoWindows.ejecutar(List.of(ComandoWindows.sistema("WindowsPowerShell\\v1.0\\powershell.exe"),"-NoProfile","-NonInteractive","-OutputFormat","Text","-EncodedCommand",encoded),30,java.nio.charset.StandardCharsets.UTF_8);
    SessionLog.escribir("Inicio equipo " + equipo.nombre(),"codigo="+r.codigo()+" respuesta="+r.salida(),null);
    if(r.codigo()!=0)throw new IOException("Windows no acepto el inicio remoto: "+r.salida());
    if(r.salida().contains("YA_EN_EJECUCION"))return "El script ya se esta ejecutando; no se inicio otra copia.";
    if(!r.salida().contains("SOLICITUD_ACEPTADA"))throw new IOException("Respuesta remota no reconocida: "+r.salida());
-   return "Solicitud aceptada en "+equipo.nombre()+". "+r.salida().strip()+"\nEl inicio de los servicios aun no esta verificado.";
-  }finally{liberar(equipo.ip());}
+   return "Solicitud aceptada en "+equipo.nombre()+". "+r.salida().strip()+"\nLa aceptacion no confirma el arranque; SIMA verificara los procesos configurados.";
  }
 }
